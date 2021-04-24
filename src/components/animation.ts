@@ -7,6 +7,8 @@ export class AnimationType{
     public static PING_PONG = 2;
     public static ONE_TIME = 3;
     public static TRIGGER = 4;
+    public static RANDOM = 5;
+    
 }
 
 export class AnimationFrame{
@@ -46,34 +48,46 @@ export default class Animation{
         this._frames = frames;
         this._type = type;
         this._callback = callback;
+
+        if(type == AnimationType.RANDOM){
+            this._currentFrame = love.math.random(this._frames.length)-1;
+        }
     }
 
+    public getCurrentFrame():number{
+        return this._currentFrame;
+    }
     public Update(dt){
         this._frameTimer+=dt;
         if(this._frameTimer>=this._frames[this._currentFrame].time){
             this._frameTimer -= this._frames[this._currentFrame].time;
             
-            switch (this._type) {
-                case AnimationType.LOOP:
+            if(this._type == AnimationType.LOOP){
+
                     this._currentFrame += this._step;
                     if(this._currentFrame >= this._frames.length){
                         this._currentFrame = 0;
-                    }                    
-                    break;
-                case AnimationType.PING_PONG:
+                    }        
+            }
+            if(this._type == AnimationType.PING_PONG){
                     this._currentFrame += this._step;
                     if(this._currentFrame >= this._frames.length || this._currentFrame <= -1){
                         this._step *= -1;
                         this._currentFrame += this._step;
-                    }                    
-                    break;
-                case AnimationType.ONE_TIME:           
+                    }         
+            }
+            
+            if(this._type == AnimationType.ONE_TIME){       
                     this._currentFrame += this._step;
                     if(this._currentFrame >= this._frames.length){
                         this._currentFrame -= this._step;
                     }                 
-                    break;
-                case AnimationType.TRIGGER:
+            }
+            
+            if(this._type == AnimationType.RANDOM){                            
+                }
+            
+                if(this._type == AnimationType.TRIGGER){
                     this._currentFrame += this._step;
                     if(this._currentFrame >= this._frames.length){
                         this._currentFrame -= this._step;
@@ -82,10 +96,15 @@ export default class Animation{
                             this._callback();
                         }
                     }
-                default:
-                    break;
-            }         
+            }     
         }
+    }
+
+    public Reset(){
+        this._currentFrame = 0;
+        this._frameTimer = 0;
+        this._step = 1;
+        this._callBackCalled = false;
     }
 
     public getName(){
@@ -113,18 +132,38 @@ export class AnimationSet{
     private _currentAnimationIndex:number;
     private _animations:Array<Animation>;
 
-    constructor(animations:Array<Animation>, currentAnimation:string) {
-        this._animations = animations;
-        this._currentAnimation = currentAnimation;    
-        this.SwitchAnimation(currentAnimation);
+    constructor() {
+        this._animations = [];
+    }
+
+    public AddAnimation(animation:Animation){
+        this._animations.push(animation);
     }
 
     public SwitchAnimation(animationName:string){
+        if(this._currentAnimation == animationName)
+            return;
         for (let index = 0; index < this._animations.length; index++) {
             if(this._animations[index].getName() == animationName){
+                this._currentAnimation = animationName;
                 this._currentAnimationIndex = index;
+                this.ResetAnimation();
             }            
         }
+    }
+
+    public getCurrentAnimation():string{
+        return this._currentAnimation;
+    }
+    
+    public SwitchAnimationIf(animationName:string, condition:boolean){
+        if(condition){
+            this.SwitchAnimation(animationName);
+        }
+    }
+
+    public ResetAnimation(){
+        this._animations[this._currentAnimationIndex].Reset();
     }
 
     public Update(dt){

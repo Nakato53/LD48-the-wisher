@@ -252,6 +252,7 @@ Module.expectedDataFileDownloads++;
         function(db) {
           checkCachedPackage(db, PACKAGE_PATH + PACKAGE_NAME,
             function(useCached) {
+              useCached = false;
               Module.preloadResults[PACKAGE_NAME] = {fromCache: useCached};
               if (useCached) {
                 console.info('loading ' + PACKAGE_NAME + ' from cache');

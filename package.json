@@ -14,7 +14,8 @@
     "lint:prettier": "cross-var prettier \"$npm_package_prettierGlob\" --check",
     "fix:prettier": "cross-var prettier \"$npm_package_prettierGlob\" --check --write",
     "launch": "yarn build && yarn start",
-    "buildweb": "yarn build && cd web && yarn && node index.js ../game ../gameweb -t gameweb"
+    "buildweb": "yarn build && cd web && yarn && node makelove.js && node index.js ../game.love ../gameweb -t gameweb",
+    "serveweb": "yarn buildweb && yarn http-server ./gameweb -o"
   },
   "prettier": {
     "printWidth": 120,
@@ -43,5 +44,8 @@
     "prettier": "^2.2.0",
     "prettier-plugin-import-sort": "^0.0.4",
     "typescript-to-lua": "^0.36.0"
+  },
+  "dependencies": {
+    "http-server": "^0.12.3"
   }
 }
