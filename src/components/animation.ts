@@ -177,6 +177,4 @@ export class AnimationSet{
      public getFrameQuad():Quad{
         return this._animations[this._currentAnimationIndex].getFrameQuad();
     }
-
-
 }
