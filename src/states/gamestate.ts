@@ -4,6 +4,7 @@ import Animation, { AnimationFrame, AnimationSet, AnimationType } from "../compo
 import MenuState from "./menustate";
 import Player from "../entities/player";
 import Camera from "../components/camera";
+import Rat from "../entities/rat";
 
 export default class GameState extends State{
 
@@ -11,10 +12,19 @@ export default class GameState extends State{
 
     private player:Player;
 
+    private ennemis:Array<any> = [];
+
     constructor(){
         super();
+
         this.player = new Player();
         this.floorTiles = [];
+
+        let rats = new Rat();
+        rats.X = -70;
+        rats.Y = 100;
+
+        this.ennemis.push(rats);
 
         for (let y = 0; y < 20; y++) {
             for (let x = 0; x < 21; x++) {
@@ -43,6 +53,10 @@ export default class GameState extends State{
             this._stack.AddState(new MenuState());
         }
         this.player.Update(dt);
+        for (let index = 0; index < this.ennemis.length; index++) {
+            this.ennemis[index].Update(dt);
+            
+        }
         Camera.update();
     }
 
@@ -55,6 +69,10 @@ export default class GameState extends State{
             let x = index - (21 * y);
             love.graphics.draw(this.floorTiles[index].getFrameImage(),this.floorTiles[index].getFrameQuad(),x*10,y*6); 
 
+        }
+        for (let index = 0; index < this.ennemis.length; index++) {
+            this.ennemis[index].Draw();
+            
         }
         this.player.Draw();
     }

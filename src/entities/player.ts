@@ -22,7 +22,7 @@ export class AttackDirection {
 export default class Player {
     private coinAnimations: AnimationSet;
     public X: number = 5;
-    public Y: number = 5;
+    public Y: number = 35;
     public XSpeed = 30;
     public YSpeed = 30;
     public faceRight: boolean = true;
