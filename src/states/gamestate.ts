@@ -6,16 +6,19 @@ import Player from "../entities/player";
 import Camera from "../components/camera";
 import Config from "../config";
 import TransitionState from "./transitionstate";
+import Rat from "../entities/rat";
 
 export default class GameState extends State {
     private floorTiles: Array<Animation>;
 
     private player: Player;
-    private mapHeight:number;
-    private mapWidth:number;
+    private mapHeight: number;
+    private mapWidth: number;
+    private ennemis: Array<any> = [];
 
     constructor() {
         super();
+
         this.player = new Player();
         this.floorTiles = [];
 
@@ -37,6 +40,12 @@ export default class GameState extends State {
                 )
             )
         }
+
+        let rats = new Rat();
+        rats.X = 50;
+        rats.Y = 100;
+
+        this.ennemis.push(rats);
     }
 
     public Update(dt: number) {
@@ -72,6 +81,10 @@ export default class GameState extends State {
         if (currentRoomY < previousRoomY) {
             Camera.MoveTo({ x: Camera.x, y: Camera.y - Config.GAME_HEIGHT })
         }
+        for (let index = 0; index < this.ennemis.length; index++) {
+            this.ennemis[index].Update(dt);
+
+        }
     }
 
     public Draw() {
@@ -87,6 +100,11 @@ export default class GameState extends State {
                 x * 10 - Camera.x,
                 y * 6 - Camera.y
             );
+        }
+
+        for (let index = 0; index < this.ennemis.length; index++) {
+            this.ennemis[index].Draw();
+
         }
 
         this.player.Draw();

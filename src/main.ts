@@ -1,5 +1,7 @@
+import { State } from "./components/statestack";
 import Config from "./config";
 import Game from "./game";
+import { TweenLib } from "./libs/Tween";
 import TextureManager from "./managers/TextureManager";
 import Static from "./static";
 import Input from "./utils/input";
@@ -10,14 +12,13 @@ let _renderscreen = love.graphics.newCanvas(Config.GAME_WIDTH, Config.GAME_HEIGH
 love.load = () => {
     Static.TEXTURE_MANAGER = new TextureManager();
     Static.INPUT = new Input();
+    Static.TWEEN = new TweenLib();
     Static.GAME = new Game();
-
-    let mapdata = dofile("res/maps/demo.lua");
-    print(mapdata[10]);
 };
 
 love.update = (dt:number) => {
     Static.INPUT.Update(dt);
+    Static.TWEEN.Update(dt);
     Static.GAME.Update(dt);
 }
 
