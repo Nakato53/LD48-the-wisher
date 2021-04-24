@@ -1,5 +1,19 @@
 import Animation, { AnimationFrame, AnimationSet, AnimationType } from "../components/animation";
 import Static from "../static";
+import { DegreeToRadian } from "../utils/angle";
+
+export class PlayerState {
+    public static ATTACK:string = "attack";
+    public static MOVING:string = "moving";
+}
+
+export class AttackDirection {
+    public static UP:string = "up";
+    public static DOWN:string = "down";
+    public static LEFT:string = "left";
+    public static RIGHT:string = "right";
+    
+}
 
 export default class Player{
     
@@ -11,8 +25,9 @@ export default class Player{
     public faceRight:boolean = true;
 
     public swordAnimation:Animation;
+    public swordDirection:string = AttackDirection.RIGHT;
 
-    public player_state:string = "moving";
+    public player_state:string = PlayerState.MOVING;
 
     constructor(){
 
@@ -61,7 +76,7 @@ export default class Player{
             AnimationType.TRIGGER,
             () => {
                 this.swordAnimation.Reset();
-                this.player_state = "moving";
+                this.player_state = PlayerState.MOVING;
                 this.coinAnimations.SwitchAnimation("iddle");
                 
             }
@@ -79,7 +94,7 @@ export default class Player{
         let hasMove = false;
         if(Static.INPUT.isDown("left"))
         {
-            if(this.player_state != "attack")
+            if(this.player_state != PlayerState.ATTACK)
                 this.faceRight = false;    
             this.X -= dt * this.XSpeed;
             
@@ -88,7 +103,7 @@ export default class Player{
         if(Static.INPUT.isDown("right"))
         {
             hasMove = true;
-            if(this.player_state != "attack")
+            if(this.player_state != PlayerState.ATTACK)
                 this.faceRight = true;            
             this.X += dt * this.XSpeed;
         }
@@ -102,38 +117,67 @@ export default class Player{
             hasMove = true;    
             this.Y += dt * this.YSpeed;
         }
-        if(Static.INPUT.isJustPressedKey("attackleft") && this.player_state != "attack")
+        if(Static.INPUT.isJustPressedKey("attackleft") && (this.player_state != PlayerState.ATTACK))
         {        
-            this.player_state = "attack";
+            this.swordDirection = AttackDirection.LEFT;
+            this.player_state = PlayerState.ATTACK;
             this.faceRight = false;    
             hasMove = true;    
             this.coinAnimations.SwitchAnimation("attack");
         }
         
-        if(Static.INPUT.isJustPressedKey("attackright") && this.player_state != "attack")
+        if(Static.INPUT.isJustPressedKey("attackright") && (this.player_state != PlayerState.ATTACK))
         {        
-            this.player_state = "attack";
+            
+            this.swordDirection = AttackDirection.RIGHT;
+            this.player_state = PlayerState.ATTACK;
             this.faceRight = true;    
             hasMove = true;    
             this.coinAnimations.SwitchAnimation("attack");
         }
-        if(this.player_state != "attack"){
+
+        if(Static.INPUT.isJustPressedKey("attackup") && this.player_state != "attack")
+        {        
+            
+            this.swordDirection = AttackDirection.UP;
+            this.player_state = PlayerState.ATTACK;
+            hasMove = true;    
+            this.coinAnimations.SwitchAnimation("attack");
+        }
+        
+        if(Static.INPUT.isJustPressedKey("attackdown") && this.player_state != "attack")
+        {        
+            
+            this.swordDirection = AttackDirection.DOWN;
+            this.player_state = PlayerState.ATTACK;
+            hasMove = true;    
+            this.coinAnimations.SwitchAnimation("attack");
+        }
+        
+        if(this.player_state != PlayerState.ATTACK){
             if( hasMove )
                 this.coinAnimations.SwitchAnimationIf("walk", this.coinAnimations.getCurrentAnimation() == "iddle");
             else
                 this.coinAnimations.SwitchAnimationIf("iddle", this.coinAnimations.getCurrentAnimation() == "walk");
         }
 
-        if(this.coinAnimations.getCurrentAnimation() == "attack"){
+        
+        if(this.player_state == PlayerState.ATTACK){
             this.swordAnimation.Update(dt);
         }
     }
 
    public Draw(){
        
-    if(this.coinAnimations.getCurrentAnimation() == "attack"){
-        love.graphics.draw(this.swordAnimation.getFrameImage(), this.swordAnimation.getFrameQuad(), Math.floor(this.X), Math.floor(this.Y), 0, this.faceRight ? 1:-1,1,11,20);
+    if(this.player_state ==  PlayerState.ATTACK){
+        if(this.swordDirection == AttackDirection.LEFT || this.swordDirection == AttackDirection.RIGHT)
+            love.graphics.draw(this.swordAnimation.getFrameImage(), this.swordAnimation.getFrameQuad(), Math.floor(this.X), Math.floor(this.Y), 0, this.faceRight ? 1:-1,1,11,20);
+        if(this.swordDirection == AttackDirection.UP)
+            love.graphics.draw(this.swordAnimation.getFrameImage(), this.swordAnimation.getFrameQuad(), Math.floor(this.X)+5+(!this.faceRight ? -10:0), Math.floor(this.Y)-8, DegreeToRadian(-30) + (!this.faceRight ? DegreeToRadian(45) : 0), this.faceRight ? 1:-1,1,16,16);
+        if(this.swordDirection == AttackDirection.DOWN)
+            love.graphics.draw(this.swordAnimation.getFrameImage(), this.swordAnimation.getFrameQuad(), Math.floor(this.X)+5+(!this.faceRight ? -10:0), Math.floor(this.Y)-5, DegreeToRadian(120)+ (!this.faceRight ? DegreeToRadian(120) : 0), this.faceRight ? 1:-1,1,16,16);
     }
+
     love.graphics.draw(this.coinAnimations.getFrameImage(), this.coinAnimations.getFrameQuad(), Math.floor(this.X), Math.floor(this.Y), 0, this.faceRight ? 1:-1,1,8,16);
    }
 
