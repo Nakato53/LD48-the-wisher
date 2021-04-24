@@ -130,6 +130,7 @@ export default class Player {
             this.player_state = PlayerState.ATTACK;
             this.faceRight = false;
             hasMove = true;
+            Camera.Shake(5);
             Static.SOUND_MANAGER.get("res/sounds/taptap.mp3").play();
             this.coinAnimations.SwitchAnimation("attack");
         }
@@ -141,6 +142,7 @@ export default class Player {
             this.faceRight = true;
             hasMove = true;
             
+            Camera.Shake(5);
             Static.SOUND_MANAGER.get("res/sounds/taptap.mp3").play();
             this.coinAnimations.SwitchAnimation("attack");
         }
@@ -151,6 +153,7 @@ export default class Player {
             this.player_state = PlayerState.ATTACK;
             hasMove = true;
             
+            Camera.Shake(5);
             Static.SOUND_MANAGER.get("res/sounds/taptap.mp3").play();
             this.coinAnimations.SwitchAnimation("attack");
         }
@@ -161,6 +164,7 @@ export default class Player {
             this.player_state = PlayerState.ATTACK;
             hasMove = true;
             
+            Camera.Shake(5);
             Static.SOUND_MANAGER.get("res/sounds/taptap.mp3").play();
             this.coinAnimations.SwitchAnimation("attack");
         }
