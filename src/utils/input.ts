@@ -11,7 +11,11 @@ export default class Input{
         "attackdown",
         "attackright",
         "attackleft",
-        "x"
+        "x",
+        "i",
+        "j",
+        "k",
+        "l",
     ];
 
     public currentKeyboardState:Array<boolean>;
@@ -58,7 +62,9 @@ export default class Input{
             this.currentKeyboardState["attackleft"] = love.keyboard.isDown("left") ;
             this.currentKeyboardState["attackright"] =  love.keyboard.isDown("right");
 
-            this.currentKeyboardState["x"] = love.keyboard.isDown("x");
+            "xijkl".split("").forEach((letter: KeyConstant) => {
+                this.currentKeyboardState[letter] = love.keyboard.isDown(letter);
+            });
            
         
         for (let index = 0; index < 3; index++) {

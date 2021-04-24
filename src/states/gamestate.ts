@@ -3,6 +3,7 @@ import { ColorToFloat } from "../utils/color";
 import Animation, { AnimationFrame, AnimationSet, AnimationType } from "../components/animation";
 import MenuState from "./menustate";
 import Player from "../entities/player";
+import Camera from "../components/camera";
 
 export default class GameState extends State{
 
@@ -35,9 +36,6 @@ export default class GameState extends State{
                 
             }
         }
-
-        
-        
     }
 
     public Update(dt:number){
@@ -45,6 +43,7 @@ export default class GameState extends State{
             this._stack.AddState(new MenuState());
         }
         this.player.Update(dt);
+        Camera.update();
     }
 
     public Draw(){
