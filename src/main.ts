@@ -3,7 +3,6 @@ import Game from "./game";
 import TextureManager from "./managers/TextureManager";
 import Static from "./static";
 import Input from "./utils/input";
-
 love.graphics.setDefaultFilter("nearest", "nearest");
 
 
@@ -17,6 +16,9 @@ love.load = () => {
     
     Static.GAME = new Game();
 
+
+    let mapdata = dofile("res/maps/demo.lua");
+    print(mapdata.width);
 
 };
 
