@@ -11,6 +11,7 @@ import { distance } from "../utils/distance";
 import { CheckCollision } from "../utils/collision";
 import { Quad } from "love.graphics";
 import Static from "../static";
+import Coin from "../entities/coin";
 
 export default class GameState extends State {
     private floorTiles: Array<number>;
@@ -18,7 +19,7 @@ export default class GameState extends State {
     private player: Player;
     private mapHeight: number;
     private mapWidth: number;
-    private ennemis: Array<any> = [];
+    private objects: Array<any> = [];
 
     private tileset:Array<AnimationFrame>;
 
@@ -44,11 +45,32 @@ export default class GameState extends State {
             this.floorTiles.push(tileIndex);
         }
 
+        
+        const mapobjects = mapdata.layers[2].data
+        for (let index = 0; index < this.mapWidth * this.mapHeight; index++) {
+            if(mapobjects[index] != 0){
+                if(mapobjects[index]  == 5){
+                    // coin
+                    let coin = new Coin();
+                    coin.Y = Math.floor(index / this.mapWidth);
+                    coin.X = index - (this.mapWidth * coin.Y) - 1;
+                    print("COIN : " + coin.X + "-" + coin.Y);
+
+                    coin.Y = (coin.Y * 12) + 2
+                    coin.X = (coin.X * 21) + 6
+                    
+                    this.objects.push(coin);
+                }
+            }
+          
+            
+        }
+
         let rats = new Rat();
         rats.X = 50;
         rats.Y = 100;
 
-        this.ennemis.push(rats);
+        this.objects.push(rats);
     }
 
     public Update(dt: number) {
@@ -106,15 +128,15 @@ export default class GameState extends State {
         if (currentRoomY < previousRoomY) {
             Camera.MoveTo({ x: Camera.x, y: Camera.y - Config.GAME_HEIGHT })
         }
-        for (let index = 0; index < this.ennemis.length; index++) {
-            this.ennemis[index].Update(dt);
+        for (let index = 0; index < this.objects.length; index++) {
+            this.objects[index].Update(dt);
 
         }
     }
 
     public Draw() {
         love.graphics.clear(ColorToFloat(0, 0, 0));
-let drawTilescount = 0;
+        let drawTilescount = 0;
         for (let index = 0; index < this.floorTiles.length; index++) {
             let y = Math.floor(index / this.mapWidth);
             let x = index - (this.mapWidth * y);
@@ -127,7 +149,7 @@ let drawTilescount = 0;
                         this.tileset[this.floorTiles[index]].y,
                         21,
                         12, 
-                        21*4, 
+                        21*5, 
                         12
                     ),
                     x * 21 - Camera.x,
@@ -141,13 +163,29 @@ let drawTilescount = 0;
                 }
             }
         }
-        print(drawTilescount);
+     //   print(drawTilescount);
 
-        for (let index = 0; index < this.ennemis.length; index++) {
-            this.ennemis[index].Draw();
+        for (let index = 0; index < this.objects.length; index++) {
+            this.objects[index].Draw();
 
         }
 
         this.player.Draw();
+
+
+        // UI
+        love.graphics.setColor(ColorToFloat(34,32,52,200));
+        love.graphics.rectangle("fill",0, 0, 2 + this.player.totalLife *(8+2) , 12);
+
+        love.graphics.setColor(ColorToFloat(34,32,52,100));
+        for (let index = 0; index < this.player.totalLife; index++) {
+            love.graphics.draw(Static.TEXTURE_MANAGER.get("res/images/coin/loot-coin.png"), love.graphics.newQuad(0,0,8,8,64,8),2+(8+2)*index,2);
+        }
+        
+        love.graphics.setColor(ColorToFloat(255,255,255));
+        for (let index = 0; index < this.player.life; index++) {
+            love.graphics.draw(Static.TEXTURE_MANAGER.get("res/images/coin/loot-coin.png"), love.graphics.newQuad(0,0,8,8,64,8),2+(8+2)*index,2);
+        }
+        
     }
 }

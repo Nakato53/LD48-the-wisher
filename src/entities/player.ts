@@ -20,6 +20,9 @@ export class AttackDirection {
 }
 
 export default class Player {
+    public life:number = 2;
+    public totalLife:number = 3;
+
     private coinAnimations: AnimationSet;
     public X: number = 5;
     public Y: number = 65;
@@ -228,6 +231,7 @@ export default class Player {
             0,
             this.faceRight ? 1 : -1, 1, 8, 16
         );
+
 
         
         if(Config.GAME_DEBUG){
