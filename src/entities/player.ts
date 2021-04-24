@@ -5,6 +5,7 @@ import Static from "../static";
 import Camera from "../components/camera";
 import { DegreeToRadian } from "../utils/angle";
 import { ColorToFloat } from "../utils/color";
+import SoundManager from "../managers/SoundManager";
 
 export class PlayerState {
     public static ATTACK: string = "attack";
@@ -98,6 +99,7 @@ export default class Player {
         this.coinAnimations.Update(dt);
         let hasMove = false;
 
+
         if (Static.INPUT.isDown("left")) {
             if (this.player_state != PlayerState.ATTACK)
                 this.faceRight = false;
@@ -128,6 +130,7 @@ export default class Player {
             this.player_state = PlayerState.ATTACK;
             this.faceRight = false;
             hasMove = true;
+            Static.SOUND_MANAGER.get("res/sounds/taptap.mp3").play();
             this.coinAnimations.SwitchAnimation("attack");
         }
 
@@ -137,6 +140,8 @@ export default class Player {
             this.player_state = PlayerState.ATTACK;
             this.faceRight = true;
             hasMove = true;
+            
+            Static.SOUND_MANAGER.get("res/sounds/taptap.mp3").play();
             this.coinAnimations.SwitchAnimation("attack");
         }
 
@@ -145,6 +150,8 @@ export default class Player {
             this.swordDirection = AttackDirection.UP;
             this.player_state = PlayerState.ATTACK;
             hasMove = true;
+            
+            Static.SOUND_MANAGER.get("res/sounds/taptap.mp3").play();
             this.coinAnimations.SwitchAnimation("attack");
         }
 
@@ -153,8 +160,13 @@ export default class Player {
             this.swordDirection = AttackDirection.DOWN;
             this.player_state = PlayerState.ATTACK;
             hasMove = true;
+            
+            Static.SOUND_MANAGER.get("res/sounds/taptap.mp3").play();
             this.coinAnimations.SwitchAnimation("attack");
         }
+
+        
+
 
         if (this.player_state != PlayerState.ATTACK) {
             if (hasMove)

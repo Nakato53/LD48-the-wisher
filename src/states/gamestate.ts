@@ -7,38 +7,41 @@ import Camera from "../components/camera";
 import Config from "../config";
 import TransitionState from "./transitionstate";
 import Rat from "../entities/rat";
+import { distance } from "../utils/distance";
+import { CheckCollision } from "../utils/collision";
+import { Quad } from "love.graphics";
+import Static from "../static";
 
 export default class GameState extends State {
-    private floorTiles: Array<Animation>;
+    private floorTiles: Array<number>;
 
     private player: Player;
     private mapHeight: number;
     private mapWidth: number;
     private ennemis: Array<any> = [];
 
+    private tileset:Array<AnimationFrame>;
+
     constructor() {
         super();
-
+        this.tileset = [];
         this.player = new Player();
+        this.player.X = 3*21;
+        this.player.Y = 3*21;
         this.floorTiles = [];
-
-        let mapdata = dofile("res/maps/demo.lua");
+        let mapdata = require("res/maps/demo");
         this.mapWidth = mapdata.layers[1].width
         this.mapHeight = mapdata.layers[1].height
         const mapTiles = mapdata.layers[1].data
 
-        for (let i = 1; i < this.mapWidth * this.mapHeight; i++) {
-            const tileIndex = mapTiles[i]
+        for (let index = 0; index < 4; index++) {
+            this.tileset.push(new AnimationFrame("res/images/tiles/tiles.png", index * 21, 0, 21, 12, 0.2));       
+        }
 
-            this.floorTiles.push(
-                new Animation(
-                    'tiles',
-                    [
-                        new AnimationFrame("res/images/tiles/tiles.png", tileIndex * 10, 0, 10, 6, 0.2),
-                    ],
-                    AnimationType.RANDOM
-                )
-            )
+
+        for (let i = 1; i < this.mapWidth * this.mapHeight; i++) {
+            const tileIndex = mapTiles[i] -1
+            this.floorTiles.push(tileIndex);
         }
 
         let rats = new Rat();
@@ -56,7 +59,29 @@ export default class GameState extends State {
         const previousRoomX = Math.floor(this.player.X / Config.GAME_WIDTH);
         const previousRoomY = Math.floor(this.player.Y / Config.GAME_HEIGHT);
 
+
+
+
+        let previousX = this.player.X +0;
+        let previousY = this.player.Y +0;
         this.player.Update(dt);
+        
+        let touch = false;
+
+
+    let playerbb = this.player.getBoundingBox();
+        for (let index = 0; index < this.floorTiles.length; index++) {
+            let y = Math.floor(index / this.mapWidth);
+            let x = index - (this.mapWidth * y);
+            
+            if(distance(this.player.X, this.player.Y, x*21, y*12) < 50){
+               if(this.floorTiles[index] != 0 && CheckCollision(playerbb.X, playerbb.Y, playerbb.W, playerbb.H, x*21, y*12, 21,12)){
+                   this.player.X = previousX;
+                   this.player.Y = previousY;
+               }
+            }
+        }
+
 
         const currentRoomX = Math.floor(this.player.X / Config.GAME_WIDTH);
         const currentRoomY = Math.floor(this.player.Y / Config.GAME_HEIGHT);
@@ -89,18 +114,34 @@ export default class GameState extends State {
 
     public Draw() {
         love.graphics.clear(ColorToFloat(0, 0, 0));
-
+let drawTilescount = 0;
         for (let index = 0; index < this.floorTiles.length; index++) {
             let y = Math.floor(index / this.mapWidth);
             let x = index - (this.mapWidth * y);
-
-            love.graphics.draw(
-                this.floorTiles[index].getFrameImage(),
-                this.floorTiles[index].getFrameQuad(),
-                x * 10 - Camera.x,
-                y * 6 - Camera.y
-            );
+            
+            if(distance(this.player.X, this.player.Y, x*21, y*12) < 250){
+                love.graphics.draw(
+                    Static.TEXTURE_MANAGER.get(this.tileset[this.floorTiles[index]].imagePath),
+                    love.graphics.newQuad(
+                        this.tileset[this.floorTiles[index]].x,
+                        this.tileset[this.floorTiles[index]].y,
+                        21,
+                        12, 
+                        21*4, 
+                        12
+                    ),
+                    x * 21 - Camera.x,
+                    y * 12 - Camera.y
+                );
+                drawTilescount++;
+                if(Config.GAME_DEBUG){
+                    love.graphics.setColor(ColorToFloat(255,0,0));
+                    love.graphics.rectangle("line", x*21- Camera.x,y*12- Camera.y,21,12);
+                    love.graphics.setColor(ColorToFloat(255,255,255));
+                }
+            }
         }
+        print(drawTilescount);
 
         for (let index = 0; index < this.ennemis.length; index++) {
             this.ennemis[index].Draw();

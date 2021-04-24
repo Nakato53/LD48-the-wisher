@@ -2,6 +2,7 @@ import { State } from "./components/statestack";
 import Config from "./config";
 import Game from "./game";
 import { TweenLib } from "./libs/Tween";
+import SoundManager from "./managers/SoundManager";
 import TextureManager from "./managers/TextureManager";
 import Static from "./static";
 import Input from "./utils/input";
@@ -11,6 +12,7 @@ let _renderscreen = love.graphics.newCanvas(Config.GAME_WIDTH, Config.GAME_HEIGH
 
 love.load = () => {
     Static.TEXTURE_MANAGER = new TextureManager();
+    Static.SOUND_MANAGER = new SoundManager();
     Static.INPUT = new Input();
     Static.TWEEN = new TweenLib();
     Static.GAME = new Game();
