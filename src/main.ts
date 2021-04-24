@@ -1,9 +1,31 @@
+import Config from "./config";
+import Game from "./game";
+import TextureManager from "./managers/TextureManager";
+import Static from "./static";
+
+love.graphics.setDefaultFilter("nearest", "nearest");
+
+
+let _renderscreen = love.graphics.newCanvas(Config.GAME_WIDTH, Config.GAME_HEIGHT);
+
+
+
 love.load = () => {
-    const [content] = love.filesystem.read("res/index.txt");
-    print(content);
+    Static.TEXTURE_MANAGER = new TextureManager();
+    
+    Static.GAME = new Game();
+
+
 };
 
+love.update = (dt:number) => {
+    Static.GAME.Update(dt);
+}
+
 love.draw = () => {
-    love.graphics.print("Hello World!", 400, 300);
+    love.graphics.setCanvas(_renderscreen)
+    Static.GAME.Draw();
+    love.graphics.setCanvas()
+    love.graphics.draw(_renderscreen, 0, 0, 0, Config.GAME_SCALE, Config.GAME_SCALE);
     
 };

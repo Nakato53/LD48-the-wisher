@@ -8,4 +8,6 @@ package.path += ";node_modules/?/?.lua";
 
 love.conf = t => {
     t.window.title = "TypeScript Project";
+    t.window.width = 840; // 420*2
+    t.window.height = 480; // 240*4
 };
