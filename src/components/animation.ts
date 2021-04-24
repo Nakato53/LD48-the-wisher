@@ -54,6 +54,10 @@ export default class Animation{
         }
     }
 
+    public setCurrentFrame(frame:number){
+        this._currentFrame = frame;
+    }
+
     public getCurrentFrame():number{
         return this._currentFrame;
     }

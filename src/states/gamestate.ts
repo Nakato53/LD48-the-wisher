@@ -179,12 +179,12 @@ export default class GameState extends State {
 
         love.graphics.setColor(ColorToFloat(34,32,52,100));
         for (let index = 0; index < this.player.totalLife; index++) {
-            love.graphics.draw(Static.TEXTURE_MANAGER.get("res/images/coin/loot-coin.png"), love.graphics.newQuad(0,0,8,8,64,8),2+(8+2)*index,2);
+            love.graphics.draw(Static.TEXTURE_MANAGER.get("res/images/coin/loot-coin.png"), love.graphics.newQuad(0,0,8,8,64,12),2+(8+2)*index,2);
         }
         
         love.graphics.setColor(ColorToFloat(255,255,255));
         for (let index = 0; index < this.player.life; index++) {
-            love.graphics.draw(Static.TEXTURE_MANAGER.get("res/images/coin/loot-coin.png"), love.graphics.newQuad(0,0,8,8,64,8),2+(8+2)*index,2);
+            love.graphics.draw(Static.TEXTURE_MANAGER.get("res/images/coin/loot-coin.png"), love.graphics.newQuad(0,0,8,8,64,12),2+(8+2)*index,2);
         }
         
     }

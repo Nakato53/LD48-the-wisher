@@ -5,5 +5,5 @@ export default class Config{
     public static GAME_NAME:string = "THE WISHER";
     public static GAME_VERSION:string = "LD48 v0.0"
 
-    public static GAME_DEBUG:boolean = true;
+    public static GAME_DEBUG:boolean = false;
 }
