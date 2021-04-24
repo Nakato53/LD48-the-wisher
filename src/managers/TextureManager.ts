@@ -7,7 +7,6 @@ export default class TextureManager{
 
     }
 
-
     public load(path:string):void{
         if(!(path in this._images)){
             this._images[path] = love.graphics.newImage(path);

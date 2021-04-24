@@ -7,40 +7,40 @@ import Camera from "../components/camera";
 import Config from "../config";
 import TransitionState from "./transitionstate";
 
-export default class GameState extends State{
-    private floorTiles:Array<Animation>;
+export default class GameState extends State {
+    private floorTiles: Array<Animation>;
 
-    private player:Player;
+    private player: Player;
+    private mapHeight:number;
+    private mapWidth:number;
 
-    constructor(){
+    constructor() {
         super();
         this.player = new Player();
         this.floorTiles = [];
 
-        for (let y = 0; y < 20; y++) {
-            for (let x = 0; x < 21; x++) {
-                this.floorTiles.push(
-                    new Animation(
-                        'tiles',
-                        [
-                            new AnimationFrame("res/images/tiles/tile_group.png", 0,0,10,6, 0.2),
-                            new AnimationFrame("res/images/tiles/tile_group.png", 1*10,0,10,6, 0.2),
-                            new AnimationFrame("res/images/tiles/tile_group.png", 2*10,0,10,6, 0.2),
-                            new AnimationFrame("res/images/tiles/tile_group.png", 3*10,0,10,6, 0.2),
-                            new AnimationFrame("res/images/tiles/tile_group.png", 4*10,0,10,6, 0.2),
-                            new AnimationFrame("res/images/tiles/tile_group.png", 5*10,0,10,6, 0.2),
-                            new AnimationFrame("res/images/tiles/tile_group.png", 6*10,0,10,6, 0.2)
-                        ],
-                        AnimationType.RANDOM 
-                    )
+        let mapdata = dofile("res/maps/demo.lua");
+        this.mapWidth = mapdata.layers[1].width
+        this.mapHeight = mapdata.layers[1].height
+        const mapTiles = mapdata.layers[1].data
+
+        for (let i = 1; i < this.mapWidth * this.mapHeight; i++) {
+            const tileIndex = mapTiles[i]
+
+            this.floorTiles.push(
+                new Animation(
+                    'tiles',
+                    [
+                        new AnimationFrame("res/images/tiles/tiles.png", tileIndex * 10, 0, 10, 6, 0.2),
+                    ],
+                    AnimationType.RANDOM
                 )
-                
-            }
+            )
         }
     }
 
-    public Update(dt:number){
-        if(love.keyboard.isDown("r")){
+    public Update(dt: number) {
+        if (love.keyboard.isDown("r")) {
             this._stack.AddState(new MenuState());
         }
 
@@ -57,33 +57,38 @@ export default class GameState extends State{
         }
 
         if (currentRoomX > previousRoomX) {
-            Camera.MoveTo({x: Camera.x + Config.GAME_WIDTH, y: Camera.y})
+            Camera.MoveTo({ x: Camera.x + Config.GAME_WIDTH, y: Camera.y })
         }
 
         if (currentRoomX < previousRoomX) {
-            Camera.MoveTo({x: Camera.x - Config.GAME_WIDTH, y: Camera.y})
+            Camera.MoveTo({ x: Camera.x - Config.GAME_WIDTH, y: Camera.y })
         }
 
         if (currentRoomY > previousRoomY) {
-            Camera.MoveTo({x: Camera.x, y: Camera.y + Config.GAME_HEIGHT})
+            Camera.MoveTo({ x: Camera.x, y: Camera.y + Config.GAME_HEIGHT })
             this.player.Y += 10
         }
 
         if (currentRoomY < previousRoomY) {
-            Camera.MoveTo({x: Camera.x, y: Camera.y - Config.GAME_HEIGHT})
+            Camera.MoveTo({ x: Camera.x, y: Camera.y - Config.GAME_HEIGHT })
         }
     }
 
-    public Draw(){
-        
-        love.graphics.clear(ColorToFloat(0,0,0));
+    public Draw() {
+        love.graphics.clear(ColorToFloat(0, 0, 0));
 
         for (let index = 0; index < this.floorTiles.length; index++) {
-            let y = Math.floor(index / 21);
-            let x = index - (21 * y);
-            love.graphics.draw(this.floorTiles[index].getFrameImage(),this.floorTiles[index].getFrameQuad(),x*10,y*6); 
+            let y = Math.floor(index / this.mapWidth);
+            let x = index - (this.mapWidth * y);
 
+            love.graphics.draw(
+                this.floorTiles[index].getFrameImage(),
+                this.floorTiles[index].getFrameQuad(),
+                x * 10 - Camera.x,
+                y * 6 - Camera.y
+            );
         }
+
         this.player.Draw();
     }
 }

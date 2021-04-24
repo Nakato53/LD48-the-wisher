@@ -5,21 +5,15 @@ import Static from "./static";
 import Input from "./utils/input";
 love.graphics.setDefaultFilter("nearest", "nearest");
 
-
 let _renderscreen = love.graphics.newCanvas(Config.GAME_WIDTH, Config.GAME_HEIGHT);
-
-
 
 love.load = () => {
     Static.TEXTURE_MANAGER = new TextureManager();
     Static.INPUT = new Input();
-    
     Static.GAME = new Game();
 
-
     let mapdata = dofile("res/maps/demo.lua");
-    print(mapdata.width);
-
+    print(mapdata[10]);
 };
 
 love.update = (dt:number) => {
@@ -32,5 +26,4 @@ love.draw = () => {
     Static.GAME.Draw();
     love.graphics.setCanvas()
     love.graphics.draw(_renderscreen, 0, 0, 0, Config.GAME_SCALE, Config.GAME_SCALE);
-    
 };
