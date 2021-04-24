@@ -4,9 +4,10 @@ import Animation, { AnimationFrame, AnimationSet, AnimationType } from "../compo
 import MenuState from "./menustate";
 import Player from "../entities/player";
 import Camera from "../components/camera";
+import Config from "../config";
+import TransitionState from "./transitionstate";
 
 export default class GameState extends State{
-
     private floorTiles:Array<Animation>;
 
     private player:Player;
@@ -42,8 +43,35 @@ export default class GameState extends State{
         if(love.keyboard.isDown("r")){
             this._stack.AddState(new MenuState());
         }
+
+        const previousRoomX = Math.floor(this.player.X / Config.GAME_WIDTH);
+        const previousRoomY = Math.floor(this.player.Y / Config.GAME_HEIGHT);
+
         this.player.Update(dt);
-        Camera.update();
+
+        const currentRoomX = Math.floor(this.player.X / Config.GAME_WIDTH);
+        const currentRoomY = Math.floor(this.player.Y / Config.GAME_HEIGHT);
+
+        if (previousRoomX !== currentRoomX || previousRoomY !== currentRoomY) {
+            this._stack.AddState(new TransitionState());
+        }
+
+        if (currentRoomX > previousRoomX) {
+            Camera.MoveTo({x: Camera.x + Config.GAME_WIDTH, y: Camera.y})
+        }
+
+        if (currentRoomX < previousRoomX) {
+            Camera.MoveTo({x: Camera.x - Config.GAME_WIDTH, y: Camera.y})
+        }
+
+        if (currentRoomY > previousRoomY) {
+            Camera.MoveTo({x: Camera.x, y: Camera.y + Config.GAME_HEIGHT})
+            this.player.Y += 10
+        }
+
+        if (currentRoomY < previousRoomY) {
+            Camera.MoveTo({x: Camera.x, y: Camera.y - Config.GAME_HEIGHT})
+        }
     }
 
     public Draw(){

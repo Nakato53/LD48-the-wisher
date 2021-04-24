@@ -12,7 +12,6 @@ export class PlayerState {
 }
 
 export class AttackDirection {
-
     public static UP: string = "up";
     public static DOWN: string = "down";
     public static LEFT: string = "left";
@@ -23,8 +22,8 @@ export default class Player {
     private coinAnimations: AnimationSet;
     public X: number = 5;
     public Y: number = 5;
-    public XSpeed = 30;
-    public YSpeed = 30;
+    public XSpeed = 60;
+    public YSpeed = 60;
     public faceRight: boolean = true;
 
     public swordAnimation: Animation;
@@ -33,8 +32,6 @@ export default class Player {
     public player_state: string = PlayerState.MOVING;
 
     constructor() {
-
-
         this.swordAnimation = new Animation(
             "sword",
             [
@@ -82,7 +79,6 @@ export default class Player {
                 this.swordAnimation.Reset();
                 this.player_state = PlayerState.MOVING;
                 this.coinAnimations.SwitchAnimation("iddle");
-
             }
         );
 

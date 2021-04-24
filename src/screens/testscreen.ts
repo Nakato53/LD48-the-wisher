@@ -1,3 +1,4 @@
+import Camera from "../components/camera";
 import StateStack from "../components/statestack";
 import GameState from "../states/gamestate";
 
@@ -12,6 +13,7 @@ export default class TestScreen{
     
     public Update(dt:number){
         this._stack.Update(dt);
+        Camera.Update(dt);
     }
 
     public Draw(){

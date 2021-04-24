@@ -1,8 +1,7 @@
 import { KeyConstant } from "love.keyboard";
 
-export default class Input{
-
-    private _keyslist:Array<string> = [
+export default class Input {
+    private _keyslist: Array<string> = [
         "left",
         "right",
         "up",
@@ -18,13 +17,13 @@ export default class Input{
         "l",
     ];
 
-    public currentKeyboardState:Array<boolean>;
-    public previousKeyboardState:Array<boolean>;
+    public currentKeyboardState: Array<boolean>;
+    public previousKeyboardState: Array<boolean>;
 
-    public currentMouseState:Array<boolean>;
-    public previousMouseState:Array<boolean>;
+    public currentMouseState: Array<boolean>;
+    public previousMouseState: Array<boolean>;
 
-    constructor(){
+    constructor() {
         this.currentKeyboardState = [];
         this.previousKeyboardState = [];
         this.currentMouseState = [];
@@ -40,67 +39,66 @@ export default class Input{
             this.previousMouseState[index] = false;
         }
     }
-    
-    public Update(dt:number){
+
+    public Update(dt: number) {
         this._keyslist.forEach(element => {
             this.previousKeyboardState[element] = this.currentKeyboardState[element] ? true : false;
         });
-        
+
         for (let index = 0; index < 3; index++) {
             this.previousMouseState[index] = this.previousMouseState[index] ? true : false;
         }
 
-            this.currentKeyboardState["up"] =  love.keyboard.isDown("w") || love.keyboard.isDown("w");
-            this.currentKeyboardState["down"] =  love.keyboard.isDown("s");
-            
-            this.currentKeyboardState["left"] = love.keyboard.isDown("a") || love.keyboard.isDown("q");
-            this.currentKeyboardState["right"] =  love.keyboard.isDown("d");
+        this.currentKeyboardState["up"] = love.keyboard.isDown("w") || love.keyboard.isDown("w");
+        this.currentKeyboardState["down"] = love.keyboard.isDown("s");
 
-            
-            this.currentKeyboardState["attackup"] =  love.keyboard.isDown("up");
-            this.currentKeyboardState["attackdown"] =  love.keyboard.isDown("down");            
-            this.currentKeyboardState["attackleft"] = love.keyboard.isDown("left") ;
-            this.currentKeyboardState["attackright"] =  love.keyboard.isDown("right");
+        this.currentKeyboardState["left"] = love.keyboard.isDown("a") || love.keyboard.isDown("q");
+        this.currentKeyboardState["right"] = love.keyboard.isDown("d");
 
-            "xijkl".split("").forEach((letter: KeyConstant) => {
-                this.currentKeyboardState[letter] = love.keyboard.isDown(letter);
-            });
-           
-        
+
+        this.currentKeyboardState["attackup"] = love.keyboard.isDown("up");
+        this.currentKeyboardState["attackdown"] = love.keyboard.isDown("down");
+        this.currentKeyboardState["attackleft"] = love.keyboard.isDown("left");
+        this.currentKeyboardState["attackright"] = love.keyboard.isDown("right");
+
+        "xijkl".split("").forEach((letter: KeyConstant) => {
+            this.currentKeyboardState[letter] = love.keyboard.isDown(letter);
+        });
+
         for (let index = 0; index < 3; index++) {
             this.currentMouseState[index] = love.mouse.isDown(index);
-        }   
+        }
     }
 
-    public isDown(key:string){
+    public isDown(key: string) {
         return this.currentKeyboardState[key];
     }
 
-    public isUp(key:string){
+    public isUp(key: string) {
         return !this.currentKeyboardState[key];
     }
 
-    public isJustPressedKey(key:string){
+    public isJustPressedKey(key: string) {
         return this.currentKeyboardState[key] && !this.previousKeyboardState[key];
     }
-    
-    public isJustReleasedKey(key:string){
+
+    public isJustReleasedKey(key: string) {
         return !this.currentKeyboardState[key] && this.previousKeyboardState[key];
     }
-    
-    public isMousePressed(index:number){
+
+    public isMousePressed(index: number) {
         return this.currentMouseState[index];
     }
-    public isMouseReleased(index:number){
+
+    public isMouseReleased(index: number) {
         return !this.currentMouseState[index];
     }
-    public isJustMousePressed(index:number){
+
+    public isJustMousePressed(index: number) {
         return this.currentMouseState[index] && !this.previousMouseState[index];
     }
-    
-    public isJustMouseReleased(index:number){
+
+    public isJustMouseReleased(index: number) {
         return !this.currentMouseState[index] && this.previousMouseState[index];
     }
-
-
 }
