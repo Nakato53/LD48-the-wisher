@@ -12,6 +12,7 @@ import { CheckCollision } from "../utils/collision";
 import { Quad } from "love.graphics";
 import Static from "../static";
 import Coin from "../entities/coin";
+import Pathfinder from "../utils/pathfinding";
 
 export default class GameState extends State {
     private floorTiles: Array<number>;
@@ -81,8 +82,17 @@ export default class GameState extends State {
         const previousRoomX = Math.floor(this.player.X / Config.GAME_WIDTH);
         const previousRoomY = Math.floor(this.player.Y / Config.GAME_HEIGHT);
 
+        const path = new Pathfinder([
+            [0, 1, 0, 0, 0],
+            [0, 0, 0, 1, 0],
+            [1, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+        ]).findPath({x: 1, y: 1}, {x: 5, y: 5})
 
-
+        //path.forEach((e:any) => {
+        //    print(e.x + ", " + e.y)
+        //});
 
         let previousX = this.player.X +0;
         let previousY = this.player.Y +0;
