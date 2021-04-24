@@ -6,10 +6,12 @@ export abstract class State{
     }
     public Update(dt:number){}
     public Draw(){}
+    public Enter(){};
+    public Exit(){};
 }
 
 export default class StateStack{
-    private _states = [];
+    private _states:Array<State> =  [];
 
     constructor() {
 
@@ -17,10 +19,12 @@ export default class StateStack{
 
     public AddState(state:State){
         state.setStack(this);
+        state.Enter();
         this._states.push(state);
     }
 
     public RemoveState(){
+        this._states[this._states.length-1].Exit();
         this._states.pop();
     }
 
