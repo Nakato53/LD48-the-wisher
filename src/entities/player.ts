@@ -1,6 +1,9 @@
 import Animation, { AnimationFrame, AnimationSet, AnimationType } from "../components/animation";
+import Rectangle from "../components/rectangle";
+import Config from "../config";
 import Static from "../static";
 import { DegreeToRadian } from "../utils/angle";
+import { ColorToFloat } from "../utils/color";
 
 export class PlayerState {
     public static ATTACK:string = "attack";
@@ -11,8 +14,7 @@ export class AttackDirection {
     public static UP:string = "up";
     public static DOWN:string = "down";
     public static LEFT:string = "left";
-    public static RIGHT:string = "right";
-    
+    public static RIGHT:string = "right";   
 }
 
 export default class Player{
@@ -30,6 +32,7 @@ export default class Player{
     public player_state:string = PlayerState.MOVING;
 
     constructor(){
+
 
         this.swordAnimation = new Animation(
             "sword",
@@ -86,6 +89,10 @@ export default class Player{
         this.coinAnimations.AddAnimation(coinAnimationWalk);       
         this.coinAnimations.AddAnimation(coinAnimationAttack);         
         this.coinAnimations.SwitchAnimation("iddle");
+    }
+
+    public getBoundingBox():Rectangle{
+        return new Rectangle(this.X-4, this.Y-10, 8, 8);
     }
 
     public Update(dt:number){
@@ -167,18 +174,27 @@ export default class Player{
         }
     }
 
+    
    public Draw(){
        
-    if(this.player_state ==  PlayerState.ATTACK){
-        if(this.swordDirection == AttackDirection.LEFT || this.swordDirection == AttackDirection.RIGHT)
-            love.graphics.draw(this.swordAnimation.getFrameImage(), this.swordAnimation.getFrameQuad(), Math.floor(this.X), Math.floor(this.Y), 0, this.faceRight ? 1:-1,1,11,20);
-        if(this.swordDirection == AttackDirection.UP)
-            love.graphics.draw(this.swordAnimation.getFrameImage(), this.swordAnimation.getFrameQuad(), Math.floor(this.X)+5+(!this.faceRight ? -10:0), Math.floor(this.Y)-8, DegreeToRadian(-30) + (!this.faceRight ? DegreeToRadian(45) : 0), this.faceRight ? 1:-1,1,16,16);
-        if(this.swordDirection == AttackDirection.DOWN)
-            love.graphics.draw(this.swordAnimation.getFrameImage(), this.swordAnimation.getFrameQuad(), Math.floor(this.X)+5+(!this.faceRight ? -10:0), Math.floor(this.Y)-5, DegreeToRadian(120)+ (!this.faceRight ? DegreeToRadian(120) : 0), this.faceRight ? 1:-1,1,16,16);
-    }
+        if(this.player_state ==  PlayerState.ATTACK){
+            if(this.swordDirection == AttackDirection.LEFT || this.swordDirection == AttackDirection.RIGHT)
+                love.graphics.draw(this.swordAnimation.getFrameImage(), this.swordAnimation.getFrameQuad(), Math.floor(this.X), Math.floor(this.Y), 0, this.faceRight ? 1:-1,1,11,20);
+            if(this.swordDirection == AttackDirection.UP)
+                love.graphics.draw(this.swordAnimation.getFrameImage(), this.swordAnimation.getFrameQuad(), Math.floor(this.X)+5+(!this.faceRight ? -10:0), Math.floor(this.Y)-8, DegreeToRadian(-30) + (!this.faceRight ? DegreeToRadian(45) : 0), this.faceRight ? 1:-1,1,16,16);
+            if(this.swordDirection == AttackDirection.DOWN)
+                love.graphics.draw(this.swordAnimation.getFrameImage(), this.swordAnimation.getFrameQuad(), Math.floor(this.X)+5+(!this.faceRight ? -10:0), Math.floor(this.Y)-5, DegreeToRadian(120)+ (!this.faceRight ? DegreeToRadian(120) : 0), this.faceRight ? 1:-1,1,16,16);
+        }
 
-    love.graphics.draw(this.coinAnimations.getFrameImage(), this.coinAnimations.getFrameQuad(), Math.floor(this.X), Math.floor(this.Y), 0, this.faceRight ? 1:-1,1,8,16);
-   }
+        love.graphics.draw(this.coinAnimations.getFrameImage(), this.coinAnimations.getFrameQuad(), Math.floor(this.X), Math.floor(this.Y), 0, this.faceRight ? 1:-1,1,8,16);
+        
+        if(Config.GAME_DEBUG){
+            let bb = this.getBoundingBox();
+            love.graphics.setColor(ColorToFloat(255,0,0));
+            love.graphics.rectangle("line", bb.X, bb.Y, bb.W, bb.H);
+            love.graphics.setColor(ColorToFloat(255,255,255));
+        }
+
+    }
 
 }
