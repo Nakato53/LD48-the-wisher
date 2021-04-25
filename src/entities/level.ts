@@ -18,9 +18,8 @@ export default class Level{
     public mapFile:string;
     public fileData:any;
 
-    private tileSizeX:number = 21;
-    private tileSizeY:number = 12;
-    
+    public levelPath:string;
+
     private mapHeight: number;
     private mapWidth: number;
 
@@ -29,10 +28,15 @@ export default class Level{
     private entities: Array<Entities> = [];
 
     constructor(path:string ){
-        this.entities = [];
-        this.mapFile = path;        
-        this.fileData = require(path);
+       this.levelPath =path;
+       this.reload();
+    }
+
+    public reload(){
+        this.mapFile = this.levelPath;        
+        this.fileData = require(this.levelPath);
         this.cells = [];
+        this.entities = [];
 
         this.tileset = Static.TEXTURE_MANAGER.get("res/images/tiles/tiles.png");        
         this.loadDatas();
@@ -84,15 +88,25 @@ export default class Level{
                     rat.Y = Math.floor(index / this.mapWidth);
                     rat.X = index - (this.mapWidth * rat.Y) - 1;
                     
-                    rat.Y = ((rat.Y+1) * 12) 
-                    rat.X = (rat.X * 21)
-                    
+                    rat.Y = ((rat.Y) * 12) + 10
+                    rat.X = (rat.X * 21) + 6
+
+                    // set les details de la rooms au rats
+                    rat.assignRoomData(this.getRoomTiles(rat.getRoomPosition().X,rat.getRoomPosition().Y));
+                   // rat.randomTarget();
+                   rat.targetX =rat.getCellPositionIntoRoom().X;
+                   rat.targetY =rat.getCellPositionIntoRoom().Y;
+                   
                     this.entities.push(rat);
+
+                    
                 }
             }
           
             
         }
+
+        print("------------ LOADED ------------");
     }
 
     public getRoomTiles(roomX:number, roomY:number):Array<Array<number>>{

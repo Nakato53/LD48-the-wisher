@@ -25,6 +25,14 @@ export default abstract class Entities {
         );
     }
 
+    public getCellPositionIntoRoom(){
+        let pos = this.getCellPosition();
+        let room = this.getRoomPosition();
+        pos.X -= (room.X * RoomSize.X);
+        pos.Y -= (room.Y * RoomSize.Y);
+        return pos;
+    }
+
     public Update(dt){
 
     }

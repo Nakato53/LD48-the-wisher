@@ -49,8 +49,8 @@ export default class Camera {
         Camera.shakeX = lerp(Camera.shakeX, 0, dt*5);
         Camera.shakeY = lerp(Camera.shakeY, 0, dt*5);
 
-        Camera.x = Camera._localX + Camera.shakeX;
-        Camera.y = Camera._localY + Camera.shakeY;
+        Camera.x =Math.floor(Camera._localX + Camera.shakeX) ;
+        Camera.y = Math.floor(Camera._localY + Camera.shakeY) ;
 
 
     }

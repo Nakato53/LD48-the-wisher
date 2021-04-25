@@ -43,7 +43,7 @@ export default class Pathfinder {
                 if (
                     this.tileMap[neighbor.y] === undefined
                     || this.tileMap[neighbor.y][neighbor.x] === undefined
-                    || this.tileMap[neighbor.y][neighbor.x] === 1
+                    || this.tileMap[neighbor.y][neighbor.x] >= 1
                 ) {
                     return
                 }

@@ -49,6 +49,7 @@ export default class GameState extends State {
 
     public Update(dt: number) {
         if (love.keyboard.isDown("r")) {
+            this.currentLevel.reload();
             this._stack.AddState(new MenuState());
         }
 
