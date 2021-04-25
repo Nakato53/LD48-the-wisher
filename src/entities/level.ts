@@ -7,7 +7,7 @@ import Static from "../static";
 import { CheckCollision } from "../utils/collision";
 import { ColorToFloat } from "../utils/color";
 import Coin from "./coin";
-import Entities from "./entities";
+import Entities, { PlayerRelatedEntities } from "./entities";
 import Player from "./player";
 import Rat from "./rat";
 
@@ -25,7 +25,7 @@ export default class Level{
 
     private cells:Array<Array<number>>;
     
-    private entities: Array<Entities> = [];
+    private entities: Array<PlayerRelatedEntities> = [];
 
     constructor(path:string ){
        this.levelPath =path;
@@ -136,7 +136,7 @@ export default class Level{
     public Update(dt:number, player:Player){
         for (let index = 0; index < this.entities.length; index++) {
             if(this.entities[index].getRoomPosition().X == player.getRoomPosition().X && this.entities[index].getRoomPosition().Y == player.getRoomPosition().Y){
-                this.entities[index].Update(dt);
+                this.entities[index].UpdateWithPlayer(dt, player);
             }            
         }
     }

@@ -6,20 +6,22 @@ import Static from "../static";
 import Camera from "../components/camera";
 import { DegreeToRadian } from "../utils/angle";
 import { ColorToFloat } from "../utils/color";
-import { AttackDirection } from "./player";
-import Entities from "./entities";
+import Player, { AttackDirection } from "./player";
+import Entities, { PlayerRelatedEntities } from "./entities";
 import Vector2 from "../components/vector2";
 import { distance, lerp } from "../utils/distance";
 import { RoomSize, TileSize } from "../enums";
 import Pathfinder from "../utils/pathfinding";
+import { TweenLib } from "../libs/Tween";
 
 export class RatState {
+    public static IDDLE:string = "iddle";
     public static MOVING:string = "moving";
     public static CHASING:string = "chasing";
     public static ATTACK:string = "attack";
 }
 
-export default class Rat extends Entities{
+export default class Rat extends PlayerRelatedEntities{
     private ratAnimations: AnimationSet;
     public X: number = 5;
     public Y: number = 35;
@@ -35,7 +37,10 @@ export default class Rat extends Entities{
 
     public swordDirection: string = AttackDirection.RIGHT;
 
-    public rat_state:string = RatState.MOVING;
+    public rat_state:string = RatState.IDDLE;
+
+    private attackstate_timer_far = 0;
+    private attackstate_timer_recheck = 0;
 
     constructor() {
 
@@ -70,19 +75,32 @@ export default class Rat extends Entities{
                 new AnimationFrame("res/images/rats/rats.png", 8 * 25, 0, 25, 16, 0.2),
                 new AnimationFrame("res/images/rats/rats.png", 9 * 25, 0, 25, 16, 0.2)
             ],
-            AnimationType.LOOP,
-            () => {
-            
-                this.rat_state = RatState.CHASING;
-                this.ratAnimations.SwitchAnimation("walk");
-
-            }
+            AnimationType.LOOP
+           
         );
 
         this.ratAnimations.AddAnimation(ratAnimationIddle);
         this.ratAnimations.AddAnimation(ratAnimationWalk);
         this.ratAnimations.AddAnimation(ratAnimationAttack);
         this.ratAnimations.SwitchAnimation("iddle");
+
+        Static.TWEEN.New(
+            love.math.random(30)/10,
+            this, 
+            {},
+            () => {
+                print("REASSIGN TARGET AND SWITHC")
+                    // reassign target
+                    this.randomTarget();
+                    let roompos = this.getCellPositionIntoRoom();
+                    this.currentPath =  this.pathfinder.findPath(
+                        {x:roompos.X+1, y:roompos.Y+1},
+                        {x: this.targetX+1, y: this.targetY+1}
+                    );
+                    
+                    this.rat_state = RatState.MOVING;
+            }
+        );
 
     }
 
@@ -101,37 +119,138 @@ export default class Rat extends Entities{
         this.targetY = y;
     }
 
-    public Update(dt:number){
+    private MoveToNode(dt:number){
+        if(this.currentPath != null){
+            let nodex = this.getRoomPosition().X * TileSize.X * RoomSize.X + (this.currentPath[this.currentPath.length-1].x-0.5)*TileSize.X;
+            let nodey = this.getRoomPosition().Y * TileSize.Y * RoomSize.Y + (this.currentPath[this.currentPath.length-1].y-0.5)*TileSize.Y;
+        // print( "DISTANCE NODE " + distance(this.X, this.Y,nodex, nodey));
+            if(distance(this.X, this.Y,nodex, nodey) > 1){
+                let previousX = this.X+0;
+                if(math.abs(nodex - this.X) > this.XSpeed*dt )
+                    this.X = this.X + ( nodex - this.X > 0 ? 1:-1)*this.XSpeed*dt;
+                    
+                if(math.abs(nodey - this.Y) > this.YSpeed*dt )
+                    this.Y = this.Y + ( nodey - this.Y > 0 ? 1:-1)*this.YSpeed*dt;
+
+                if(math.abs(nodex - this.X) > 0.3 )
+                this.faceRight = nodex - this.X >= 0 ? true : false;
+            }else{
+            this.currentPath.pop();
+            }        
+        }      
+    }
+
+    public UpdateWithPlayer(dt:number, player:Player){
+
 
         if(this.rat_state == RatState.MOVING){
-            this.ratAnimations.SwitchAnimation("walk");
-            if(this.currentPath.length > 0){     
-                let nodex = this.getRoomPosition().X * TileSize.X * RoomSize.X + (this.currentPath[this.currentPath.length-1].x-0.5)*TileSize.X;
-                let nodey = this.getRoomPosition().Y * TileSize.Y * RoomSize.Y + (this.currentPath[this.currentPath.length-1].y-0.5)*TileSize.Y;
-               // print( "DISTANCE NODE " + distance(this.X, this.Y,nodex, nodey));
-                if(distance(this.X, this.Y,nodex, nodey) > 1){
-                    let previousX = this.X+0;
-                    if(math.abs(nodex - this.X) > this.XSpeed*dt )
-                        this.X = this.X + ( nodex - this.X > 0 ? 1:-1)*this.XSpeed*dt;
-                        
-                    if(math.abs(nodey - this.Y) > this.YSpeed*dt )
-                        this.Y = this.Y + ( nodey - this.Y > 0 ? 1:-1)*this.YSpeed*dt;
+                // test si proche 
+            print(distance(this.X, this.Y, player.X, player.Y));
+            if(distance(this.X, this.Y, player.X, player.Y) < 50 && this.rat_state != RatState.ATTACK){
+                this.rat_state = RatState.ATTACK;
+                this.attackstate_timer_far = 0;
+                this.attackstate_timer_recheck = 0;
 
-                    if(math.abs(nodex - this.X) > 0.3 )
-                     this.faceRight = nodex - this.X >= 0 ? true : false;
-                }else{
-                   this.currentPath.pop();
-                }              
-            }else{
-                // reassign target
-                this.randomTarget();
                 let roompos = this.getCellPositionIntoRoom();
+                let playerroompos = player.getCellPositionIntoRoom();
                 this.currentPath =  this.pathfinder.findPath(
                     {x:roompos.X+1, y:roompos.Y+1},
-                    {x: this.targetX+1, y: this.targetY+1}
+                    {x: playerroompos.X+1, y: playerroompos.Y+1}
+                );
+                
+
+            }
+
+            this.ratAnimations.SwitchAnimation("walk");
+            if(this.currentPath != null && this.currentPath.length > 0){     
+                this.MoveToNode(dt);
+            }else{
+                
+                this.rat_state = RatState.IDDLE;
+                Static.TWEEN.New(
+                    love.math.random(30)/10,
+                    this, 
+                    {},
+                    () => {
+                            // reassign target
+                            this.randomTarget();
+                            let roompos = this.getCellPositionIntoRoom();
+                            this.currentPath =  this.pathfinder.findPath(
+                                {x:roompos.X+1, y:roompos.Y+1},
+                                {x: this.targetX+1, y: this.targetY+1}
+                            );
+                            
+                            this.rat_state = RatState.MOVING;
+                    }
+                );
+                
+            }
+        }
+        else if (this.rat_state == RatState.IDDLE){
+            
+            this.ratAnimations.SwitchAnimation("iddle");
+            
+        }
+        else if (this.rat_state == RatState.ATTACK){
+            
+            this.ratAnimations.SwitchAnimation("attack");
+            this.attackstate_timer_recheck += dt;
+
+            // recalcul toute les 1 sec
+            if(this.attackstate_timer_recheck > 1 ){
+                this.attackstate_timer_recheck = 0;
+                let roompos = this.getCellPositionIntoRoom();
+                let playerroompos = player.getCellPositionIntoRoom();
+                this.currentPath =  this.pathfinder.findPath(
+                    {x:roompos.X+1, y:roompos.Y+1},
+                    {x: playerroompos.X+1, y: playerroompos.Y+1}
+                );
+            }
+
+            if(distance(this.X, this.Y, player.X, player.Y) > 50 ){
+                this.attackstate_timer_far += dt;
+            }else{
+                this.attackstate_timer_far = 0;
+            }
+
+
+            if(this.currentPath != null && this.currentPath.length > 0){     
+                
+                this.MoveToNode(dt);
+                
+            }else{
+                let roompos = this.getCellPositionIntoRoom();
+                let playerroompos = player.getCellPositionIntoRoom();
+                this.currentPath =  this.pathfinder.findPath(
+                    {x:roompos.X+1, y:roompos.Y+1},
+                    {x: playerroompos.X+1, y: playerroompos.Y+1}
+                );
+                
+            }
+
+
+
+            if(this.attackstate_timer_far > 5){
+                this.rat_state = RatState.IDDLE;
+                Static.TWEEN.New(
+                    love.math.random(30)/10,
+                    this, 
+                    {},
+                    () => {
+                            // reassign target
+                            this.randomTarget();
+                            let roompos = this.getCellPositionIntoRoom();
+                            this.currentPath =  this.pathfinder.findPath(
+                                {x:roompos.X+1, y:roompos.Y+1},
+                                {x: this.targetX+1, y: this.targetY+1}
+                            );
+                            
+                            this.rat_state = RatState.MOVING;
+                    }
                 );
             }
         }
+        
 
 
         this.ratAnimations.Update(dt);
@@ -175,16 +294,18 @@ export default class Rat extends Entities{
 
         
         // draw path
-        for (let index = this.currentPath.length-2; index >= 0; index--) {
-           
-            let nodex = this.getRoomPosition().X * TileSize.X * RoomSize.X + (this.currentPath[index].x-0.5)*TileSize.X;
-            let nodey = this.getRoomPosition().Y * TileSize.Y * RoomSize.Y + (this.currentPath[index].y-0.5)*TileSize.Y;
+        if(this.currentPath != null){
+            for (let index = this.currentPath.length-2; index >= 0; index--) {
             
-            let nodexprev = this.getRoomPosition().X * TileSize.X * RoomSize.X + (this.currentPath[index+1].x-0.5)*TileSize.X;
-            let nodeyprev = this.getRoomPosition().Y * TileSize.Y * RoomSize.Y + (this.currentPath[index+1].y-0.5)*TileSize.Y;
-            
-            love.graphics.line(nodex -Camera.x, nodey -Camera.y,nodexprev -Camera.x, nodeyprev -Camera.y);
-            
+                let nodex = this.getRoomPosition().X * TileSize.X * RoomSize.X + (this.currentPath[index].x-0.5)*TileSize.X;
+                let nodey = this.getRoomPosition().Y * TileSize.Y * RoomSize.Y + (this.currentPath[index].y-0.5)*TileSize.Y;
+                
+                let nodexprev = this.getRoomPosition().X * TileSize.X * RoomSize.X + (this.currentPath[index+1].x-0.5)*TileSize.X;
+                let nodeyprev = this.getRoomPosition().Y * TileSize.Y * RoomSize.Y + (this.currentPath[index+1].y-0.5)*TileSize.Y;
+                
+                love.graphics.line(nodex -Camera.x, nodey -Camera.y,nodexprev -Camera.x, nodeyprev -Camera.y);
+                
+            }
         }
 
         

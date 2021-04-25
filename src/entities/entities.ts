@@ -1,5 +1,7 @@
 import Vector2 from "../components/vector2";
 import { RoomSize, TileSize } from "../enums";
+import Player from "./player";
+
 
 export default abstract class Entities {
     public X:number;
@@ -33,9 +35,17 @@ export default abstract class Entities {
         return pos;
     }
 
-    public Update(dt){
+    public Update(dt:number){
 
     }
 
     public Draw(){}
+}
+
+
+export abstract class PlayerRelatedEntities extends Entities{
+
+    public UpdateWithPlayer(dt:number, player:Player){
+
+    }
 }

@@ -1,8 +1,9 @@
 import Animation, { AnimationFrame, AnimationSet, AnimationType } from "../components/animation";
 import Camera from "../components/camera";
-import Entities from "./entities";
+import Entities, { PlayerRelatedEntities } from "./entities";
+import Player from "./player";
 
-export default class Coin extends Entities{
+export default class Coin extends PlayerRelatedEntities{
     private coinAnimations: AnimationSet;
     public X:number;
     public Y:number;
@@ -27,7 +28,7 @@ export default class Coin extends Entities{
         this.coinAnimations.SwitchAnimation("flip");
     }
 
-    public Update(dt:number){
+    public UpdateWithPlayer(dt:number, player:Player){
         this.coinAnimations.Update(dt);
     }
 
