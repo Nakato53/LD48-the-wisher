@@ -42,9 +42,15 @@ export default class Rat extends PlayerRelatedEntities{
     private attackstate_timer_far = 0;
     private attackstate_timer_recheck = 0;
 
+    private timer_hit:number = 0;
+
+    private _currentHP = 3;
+    private _mapHP = 3;
+
     constructor() {
 
         super();
+        this.entityType = "rat";
       this.currentPath = [];
         this.ratAnimations = new AnimationSet();
         let ratAnimationIddle = new Animation(
@@ -104,6 +110,11 @@ export default class Rat extends PlayerRelatedEntities{
 
     }
 
+    
+    public needRemove():boolean{
+        return this._currentHP <= 0;
+    }
+
     public assignRoomData(datas){
         this.roomData = datas;
         this.pathfinder = new Pathfinder(this.roomData);
@@ -113,6 +124,12 @@ export default class Rat extends PlayerRelatedEntities{
         return new Rectangle(this.X-4, this.Y-6, 12, 8);
     }
 
+    public hit(){
+        if(this.timer_hit <= 0){
+            this.timer_hit = 0.5;
+            this._currentHP--;
+        }
+    }
 
     public setTarget(x:number, y:number){
         this.targetX = x;
@@ -142,6 +159,7 @@ export default class Rat extends PlayerRelatedEntities{
 
     public UpdateWithPlayer(dt:number, player:Player){
 
+        this.timer_hit-=dt;
 
         if(this.rat_state == RatState.MOVING){
                 // test si proche 
@@ -276,7 +294,9 @@ export default class Rat extends PlayerRelatedEntities{
     }
 
     public Draw() {
-       
+       if(this.timer_hit > 0){
+           love.graphics.setColor(1,0,0,1);
+       }
         love.graphics.draw(
             this.ratAnimations.getFrameImage(),
             this.ratAnimations.getFrameQuad(),
@@ -285,6 +305,10 @@ export default class Rat extends PlayerRelatedEntities{
             0,
             this.faceRight ? 1 : -1, 1, 12, 12
         );
+        
+       if(this.timer_hit > 0){
+        love.graphics.setColor(1,1,1,1);
+    }
 
         // draw target
         // let targetXRoomPosition = this.getRoomPosition().X * TileSize.X * RoomSize.X + this.targetX*TileSize.X + 10;

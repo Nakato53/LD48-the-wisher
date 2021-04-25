@@ -1,3 +1,4 @@
+import Rectangle from "../components/rectangle";
 import Vector2 from "../components/vector2";
 import { RoomSize, TileSize } from "../enums";
 import Player from "./player";
@@ -15,6 +16,11 @@ export default abstract class Entities {
             Math.floor(this.X / TileSize.X),
             Math.floor(this.Y / TileSize.Y)
         );
+    }
+
+    
+    public getBoundingBox():Rectangle{
+        return new Rectangle(1,1,1,1);
     }
 
     /**
@@ -45,7 +51,11 @@ export default abstract class Entities {
 
 export abstract class PlayerRelatedEntities extends Entities{
 
+    public entityType = "";
     public UpdateWithPlayer(dt:number, player:Player){
 
+    }
+    public needRemove():boolean{
+        return false;
     }
 }

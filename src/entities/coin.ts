@@ -9,6 +9,8 @@ export default class Coin extends PlayerRelatedEntities{
     public Y:number;
     constructor(){
         super();
+        
+        this.entityType = "coin";
         let coinAnimationFlip = new Animation(
             "flip",
             [

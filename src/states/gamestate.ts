@@ -2,7 +2,7 @@ import { State } from "../components/statestack"
 import { ColorToFloat } from "../utils/color";
 import Animation, { AnimationFrame, AnimationSet, AnimationType } from "../components/animation";
 import MenuState from "./menustate";
-import Player from "../entities/player";
+import Player, { AttackDirection, PlayerState } from "../entities/player";
 import Camera from "../components/camera";
 import Config from "../config";
 import TransitionState from "./transitionstate";
@@ -76,6 +76,37 @@ export default class GameState extends State {
         if(!this.currentLevel.isWalkable(playerbb,this.player)){
             this.player.X = previousX;
             this.player.Y = previousY;
+        }
+        if(this.player.player_state == PlayerState.ATTACK && this.player.swordAnimation.getCurrentFrame() == 1){
+            for (let index = 0; index < this.currentLevel.entities.length; index++) {
+                if(this.currentLevel.entities[index].getRoomPosition().X == this.player.getRoomPosition().X && this.currentLevel.entities[index].getRoomPosition().Y == this.player.getRoomPosition().Y){
+                    if(this.currentLevel.entities[index].entityType == "rat"){
+                        let ratBB = this.currentLevel.entities[index].getBoundingBox();
+
+                        if(this.player.swordDirection == AttackDirection.UP){
+                            if(CheckCollision(ratBB.X, ratBB.Y, ratBB.W, ratBB.H, this.player.X -5, this.player.Y-30,10,15)){
+                                (this.currentLevel.entities[index] as Rat).hit();
+                            }
+                        }
+                        if(this.player.swordDirection == AttackDirection.DOWN){
+                            if(CheckCollision(ratBB.X, ratBB.Y, ratBB.W, ratBB.H,  this.player.X -5 , this.player.Y +2, 10, 15)){
+                                (this.currentLevel.entities[index] as Rat).hit();
+                            }
+                        }
+                        if(this.player.swordDirection == AttackDirection.LEFT){
+                            if(CheckCollision(ratBB.X, ratBB.Y, ratBB.W, ratBB.H, this.player.X - 25, this.player.Y - 10, 15, 10)){
+                                (this.currentLevel.entities[index] as Rat).hit();
+                            }
+                        }
+                        if(this.player.swordDirection == AttackDirection.RIGHT){
+                            if(CheckCollision(ratBB.X, ratBB.Y, ratBB.W, ratBB.H, this.player.X + 9, this.player.Y - 10, 15, 10)){
+                                (this.currentLevel.entities[index] as Rat).hit();
+                            }
+                        }
+                    }
+                }            
+            }
+            
         }
      
 

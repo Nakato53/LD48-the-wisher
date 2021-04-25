@@ -25,7 +25,7 @@ export default class Level{
 
     private cells:Array<Array<number>>;
     
-    private entities: Array<PlayerRelatedEntities> = [];
+    public entities: Array<PlayerRelatedEntities> = [];
 
     constructor(path:string ){
        this.levelPath =path;
@@ -134,9 +134,13 @@ export default class Level{
     }
 
     public Update(dt:number, player:Player){
-        for (let index = 0; index < this.entities.length; index++) {
+        for (let index = this.entities.length-1; index >= 0; index--) {
             if(this.entities[index].getRoomPosition().X == player.getRoomPosition().X && this.entities[index].getRoomPosition().Y == player.getRoomPosition().Y){
                 this.entities[index].UpdateWithPlayer(dt, player);
+                if(this.entities[index].needRemove()){
+                    this.entities.splice(index,1);
+                }
+                
             }            
         }
     }
