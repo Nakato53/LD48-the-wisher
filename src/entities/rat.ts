@@ -84,13 +84,6 @@ export default class Rat extends Entities{
         this.ratAnimations.AddAnimation(ratAnimationAttack);
         this.ratAnimations.SwitchAnimation("iddle");
 
-        // Static.TWEEN.New(2, this, { }, () => {
-        //     this.ratAnimations.SwitchAnimation("walk");
-        //     Static.TWEEN.New(2, this, { X: 0 }, () => {
-        //         this.ratAnimations.SwitchAnimation("attack");
-        //     });
-        // })
-
     }
 
     public assignRoomData(datas){
@@ -118,8 +111,11 @@ export default class Rat extends Entities{
                // print( "DISTANCE NODE " + distance(this.X, this.Y,nodex, nodey));
                 if(distance(this.X, this.Y,nodex, nodey) > 1){
                     let previousX = this.X+0;
-                    this.X = this.X + ( nodex - this.X > 0 ? 1:-1)*this.XSpeed*dt;
-                    this.Y = this.Y + ( nodey - this.Y > 0 ? 1:-1)*this.YSpeed*dt;
+                    if(math.abs(nodex - this.X) > this.XSpeed*dt )
+                        this.X = this.X + ( nodex - this.X > 0 ? 1:-1)*this.XSpeed*dt;
+                        
+                    if(math.abs(nodey - this.Y) > this.YSpeed*dt )
+                        this.Y = this.Y + ( nodey - this.Y > 0 ? 1:-1)*this.YSpeed*dt;
 
                     if(math.abs(nodex - this.X) > 0.3 )
                      this.faceRight = nodex - this.X >= 0 ? true : false;
@@ -129,9 +125,6 @@ export default class Rat extends Entities{
             }else{
                 // reassign target
                 this.randomTarget();
-
-        
-                
                 let roompos = this.getCellPositionIntoRoom();
                 this.currentPath =  this.pathfinder.findPath(
                     {x:roompos.X+1, y:roompos.Y+1},
@@ -201,8 +194,6 @@ export default class Rat extends Entities{
             Math.floor(this.Y)- Camera.y ,
            2,2
         );
-//print(Math.floor(this.X)- Camera.x );
-
         
         if(Config.GAME_DEBUG){
             let bb = this.getBoundingBox();
