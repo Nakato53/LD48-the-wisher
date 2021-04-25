@@ -7,6 +7,7 @@ import Camera from "../components/camera";
 import { DegreeToRadian } from "../utils/angle";
 import { ColorToFloat } from "../utils/color";
 import { AttackDirection } from "./player";
+import Entities from "./entities";
 
 export class RatState {
     public static MOVING:string = "moving";
@@ -14,7 +15,7 @@ export class RatState {
     public static ATTACK:string = "attack";
 }
 
-export default class Rat {
+export default class Rat extends Entities{
     private ratAnimations: AnimationSet;
     public X: number = 5;
     public Y: number = 35;
@@ -28,7 +29,7 @@ export default class Rat {
 
     constructor() {
 
-
+        super();
       
         this.ratAnimations = new AnimationSet();
         let ratAnimationIddle = new Animation(
@@ -73,12 +74,12 @@ export default class Rat {
         this.ratAnimations.AddAnimation(ratAnimationAttack);
         this.ratAnimations.SwitchAnimation("iddle");
 
-        Static.TWEEN.New(2, this, { }, () => {
-            this.ratAnimations.SwitchAnimation("walk");
-            Static.TWEEN.New(2, this, { X: 0 }, () => {
-                this.ratAnimations.SwitchAnimation("attack");
-            });
-        })
+        // Static.TWEEN.New(2, this, { }, () => {
+        //     this.ratAnimations.SwitchAnimation("walk");
+        //     Static.TWEEN.New(2, this, { X: 0 }, () => {
+        //         this.ratAnimations.SwitchAnimation("attack");
+        //     });
+        // })
 
     }
 

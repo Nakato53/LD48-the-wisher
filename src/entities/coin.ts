@@ -1,11 +1,13 @@
 import Animation, { AnimationFrame, AnimationSet, AnimationType } from "../components/animation";
 import Camera from "../components/camera";
+import Entities from "./entities";
 
-export default class Coin{
+export default class Coin extends Entities{
     private coinAnimations: AnimationSet;
     public X:number;
     public Y:number;
     constructor(){
+        super();
         let coinAnimationFlip = new Animation(
             "flip",
             [

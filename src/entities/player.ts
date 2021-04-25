@@ -6,6 +6,8 @@ import Camera from "../components/camera";
 import { DegreeToRadian } from "../utils/angle";
 import { ColorToFloat } from "../utils/color";
 import SoundManager from "../managers/SoundManager";
+import Vector2 from "../components/vector2";
+import Entities from "./entities";
 
 export class PlayerState {
     public static ATTACK: string = "attack";
@@ -19,7 +21,7 @@ export class AttackDirection {
     public static RIGHT: string = "right";
 }
 
-export default class Player {
+export default class Player extends Entities {
     public life:number = 2;
     public totalLife:number = 3;
 
@@ -36,6 +38,7 @@ export default class Player {
     public player_state: string = PlayerState.MOVING;
 
     constructor() {
+        super();
         this.swordAnimation = new Animation(
             "sword",
             [
@@ -95,6 +98,7 @@ export default class Player {
     public getBoundingBox():Rectangle{
         return new Rectangle(this.X-4, this.Y-10, 8, 8);
     }
+
 
     public Update(dt:number){
 

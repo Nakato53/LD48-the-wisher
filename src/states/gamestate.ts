@@ -9,10 +9,11 @@ import TransitionState from "./transitionstate";
 import Rat from "../entities/rat";
 import { distance } from "../utils/distance";
 import { CheckCollision } from "../utils/collision";
-import { Quad } from "love.graphics";
+import { line, Quad } from "love.graphics";
 import Static from "../static";
 import Coin from "../entities/coin";
 import Pathfinder from "../utils/pathfinding";
+import Level from "../entities/level";
 
 export default class GameState extends State {
     private floorTiles: Array<number>;
@@ -20,58 +21,30 @@ export default class GameState extends State {
     private player: Player;
     private mapHeight: number;
     private mapWidth: number;
-    private objects: Array<any> = [];
+
+    private currentLevel:Level;
 
     private tileset:Array<AnimationFrame>;
 
     constructor() {
         super();
+
+
         this.tileset = [];
         this.player = new Player();
         this.player.X = 3*21;
         this.player.Y = 3*21;
         this.floorTiles = [];
         let mapdata = require("res/maps/demo");
+        this.currentLevel = new Level("res/maps/demo");
+
+
         this.mapWidth = mapdata.layers[1].width
         this.mapHeight = mapdata.layers[1].height
         const mapTiles = mapdata.layers[1].data
 
-        for (let index = 0; index < 4; index++) {
-            this.tileset.push(new AnimationFrame("res/images/tiles/tiles.png", index * 21, 0, 21, 12, 0.2));       
-        }
-
-
-        for (let i = 1; i < this.mapWidth * this.mapHeight; i++) {
-            const tileIndex = mapTiles[i] -1
-            this.floorTiles.push(tileIndex);
-        }
-
         
-        const mapobjects = mapdata.layers[2].data
-        for (let index = 0; index < this.mapWidth * this.mapHeight; index++) {
-            if(mapobjects[index] != 0){
-                if(mapobjects[index]  == 5){
-                    // coin
-                    let coin = new Coin();
-                    coin.Y = Math.floor(index / this.mapWidth);
-                    coin.X = index - (this.mapWidth * coin.Y) - 1;
-                    print("COIN : " + coin.X + "-" + coin.Y);
 
-                    coin.Y = (coin.Y * 12) + 2
-                    coin.X = (coin.X * 21) + 6
-                    
-                    this.objects.push(coin);
-                }
-            }
-          
-            
-        }
-
-        let rats = new Rat();
-        rats.X = 50;
-        rats.Y = 100;
-
-        this.objects.push(rats);
     }
 
     public Update(dt: number) {
@@ -98,22 +71,12 @@ export default class GameState extends State {
         let previousY = this.player.Y +0;
         this.player.Update(dt);
         
-        let touch = false;
-
-
-    let playerbb = this.player.getBoundingBox();
-        for (let index = 0; index < this.floorTiles.length; index++) {
-            let y = Math.floor(index / this.mapWidth);
-            let x = index - (this.mapWidth * y);
-            
-            if(distance(this.player.X, this.player.Y, x*21, y*12) < 50){
-               if(this.floorTiles[index] != 0 && CheckCollision(playerbb.X, playerbb.Y, playerbb.W, playerbb.H, x*21, y*12, 21,12)){
-                   this.player.X = previousX;
-                   this.player.Y = previousY;
-               }
-            }
+        let playerbb = this.player.getBoundingBox();
+        if(!this.currentLevel.isWalkable(playerbb,this.player)){
+            this.player.X = previousX;
+            this.player.Y = previousY;
         }
-
+     
 
         const currentRoomX = Math.floor(this.player.X / Config.GAME_WIDTH);
         const currentRoomY = Math.floor(this.player.Y / Config.GAME_HEIGHT);
@@ -138,48 +101,14 @@ export default class GameState extends State {
         if (currentRoomY < previousRoomY) {
             Camera.MoveTo({ x: Camera.x, y: Camera.y - Config.GAME_HEIGHT })
         }
-        for (let index = 0; index < this.objects.length; index++) {
-            this.objects[index].Update(dt);
 
-        }
+        this.currentLevel.Update(dt,this.player);
     }
 
     public Draw() {
         love.graphics.clear(ColorToFloat(0, 0, 0));
-        let drawTilescount = 0;
-        for (let index = 0; index < this.floorTiles.length; index++) {
-            let y = Math.floor(index / this.mapWidth);
-            let x = index - (this.mapWidth * y);
-            
-            if(distance(this.player.X, this.player.Y, x*21, y*12) < 250){
-                love.graphics.draw(
-                    Static.TEXTURE_MANAGER.get(this.tileset[this.floorTiles[index]].imagePath),
-                    love.graphics.newQuad(
-                        this.tileset[this.floorTiles[index]].x,
-                        this.tileset[this.floorTiles[index]].y,
-                        21,
-                        12, 
-                        21*5, 
-                        12
-                    ),
-                    x * 21 - Camera.x,
-                    y * 12 - Camera.y
-                );
-                drawTilescount++;
-                if(Config.GAME_DEBUG){
-                    love.graphics.setColor(ColorToFloat(255,0,0));
-                    love.graphics.rectangle("line", x*21- Camera.x,y*12- Camera.y,21,12);
-                    love.graphics.setColor(ColorToFloat(255,255,255));
-                }
-            }
-        }
-     //   print(drawTilescount);
-
-        for (let index = 0; index < this.objects.length; index++) {
-            this.objects[index].Draw();
-
-        }
-
+        
+        this.currentLevel.Draw(this.player);        
         this.player.Draw();
 
 
